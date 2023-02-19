@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Технологии{% endblock %}
+{% block content %}
+<div class="row">
+  <h1>В этом проекте использовались:</h1>
+  <aside class="col-12 col-md-3">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        Python
+      </li>
+      <li class="list-group-item">
+        Django
+      </li>
+      <li class="list-group-item">
+        Постоянно ломающийся мозг
+      </li>
+    </ul>
+  </aside>
+  <article class="col-12 col-md-9">
+    <p>
+      <img
+        src="{% static "img/trying_to_code.png" %}"
+        width="200"
+        height="250"
+        class="d-inline-block align-top"
+        alt="">
+    </p>
+  </article>
+</div>
+{% endblock %}

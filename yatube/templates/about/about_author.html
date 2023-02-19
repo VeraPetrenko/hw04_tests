@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %} 
+  <div class="container py-5">     
+    <h1> Об авторе проекта </h1>
+    <p>
+      Привет! Я автор этого проекта -  
+      <b> 
+        <a href="https://vk.com/petrenkovera"> Вера Петренко. </a>
+      </b>
+    </p>
+    Пишу проект своими ручками:
+    <p>
+      <img 
+        src="{% static "img/photo_about_author.png" %}"
+        width="400"
+        height="500"
+        class="d-inline-block align-top"
+        alt=""
+      >
+    </p>   
+    <p>
+      <b> GitHub: </b>
+      <a href="https://github.com/VeraPetrenko"> VeraPetrenko </a>
+    </p>
+  </div> 
+{% endblock %}  
+
