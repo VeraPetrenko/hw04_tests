@@ -55,7 +55,7 @@ class PostCreateFormTest(TestCase):
             group=self.group.id
         ).first()
         self.assertEqual(created_post.text, form_data['text'])
-        self.assertEqual(created_post.group, form_data['group'])
+        self.assertEqual(created_post.group.id, form_data['group'])
 
     def test_edit_post(self):
         """Валидная форма редактирует запись в Post."""
