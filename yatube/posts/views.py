@@ -1,9 +1,9 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Post, Group, User
-from .forms import PostForm
-from .utils import paginating
+from posts.models import Group, Post, User
+from posts.forms import PostForm
+from posts.utils import paginating
 
 
 def index(request):

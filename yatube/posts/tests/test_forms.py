@@ -1,27 +1,36 @@
 from http import HTTPStatus
+
 from django.test import Client, TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
+
+from posts.models import Group, Post, User
 
 
-from posts.forms import PostForm
-from posts.models import Post, Group
-
-
-User = get_user_model()
+CREATE_POST_URL = reverse('posts:post_create')
+TEST_DATA = {
+    'username': 'author',
+    'test_group_title': 'Тестовая группа изначальная',
+    'test_group_slug': 'test-slug',
+    'test_group_description': 'Тестовое описание',
+    'test_create_post_text': 'Тестовый пост при его создании',
+    'test_edit_post_group_title': (
+        'Тестовая группа для отредактированного поста'),
+    'test_edit_post_group_slug': 'test-slug-edit',
+    'test_edit_post_group_description': 'Тестовое описание новой группы',
+    'test_edit_post_text': 'Тестовый текст поста при редактировании'
+}
 
 
 class PostCreateFormTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='author')
+        cls.user = User.objects.create_user(username=TEST_DATA['username'])
         cls.group = Group.objects.create(
-            title='Тестовая группа изначальная',
-            slug='test-slug',
-            description='Тестовое описание',
+            title=TEST_DATA['test_group_title'],
+            slug=TEST_DATA['test_group_slug'],
+            description=TEST_DATA['test_group_description'],
         )
-        cls.form = PostForm()
 
     def setUp(self):
         self.guest_client = Client()
@@ -32,41 +41,45 @@ class PostCreateFormTest(TestCase):
         """Валидная форма создает запись в Post."""
         posts_count = Post.objects.count()
         form_data = {
-            'text': 'Тестовый текст поста при его создании',
+            'text': TEST_DATA['test_create_post_text'],
             'group': self.group.id,
         }
         self.authorized_client.post(
-            reverse('posts:post_create'),
+            CREATE_POST_URL,
             data=form_data,
             follow=True
         )
         self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertTrue(
-            Post.objects.filter(
-                text='Тестовый текст поста при его создании',
-                group=self.group.id
-            ).exists()
-        )
+        created_post = Post.objects.filter(
+            text=TEST_DATA['test_create_post_text'],
+            group=self.group.id
+        ).first()
+        self.assertEqual(created_post.text, form_data['text'])
+        self.assertEqual(created_post.group, form_data['group'])
 
     def test_edit_post(self):
         """Валидная форма редактирует запись в Post."""
         post_father = Post.objects.create(
             author=self.user,
-            text='Тестовый пост изначальный',
+            text=TEST_DATA['test_create_post_text'],
             group=self.group
+        )
+        POST_FATHER_EDIT_URL = reverse(
+            'posts:post_edit',
+            kwargs={'post_id': post_father.id}
         )
         posts_count = Post.objects.count()
         new_group = Group.objects.create(
-            title='Тестовая группа для отредактированного поста',
-            slug='test-slug-edit',
-            description='Тестовое описание новой группы',
+            title=TEST_DATA['test_edit_post_group_title'],
+            slug=TEST_DATA['test_edit_post_group_slug'],
+            description=TEST_DATA['test_edit_post_group_description'],
         )
         form_data = {
-            'text': 'Тестовый текст поста при редактировании',
+            'text': TEST_DATA['test_edit_post_text'],
             'group': new_group.id,
         }
         response = self.authorized_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': post_father.id}),
+            POST_FATHER_EDIT_URL,
             data=form_data,
             follow=True
         )

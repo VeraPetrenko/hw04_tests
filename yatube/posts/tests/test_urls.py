@@ -1,35 +1,55 @@
 from http import HTTPStatus
-from django.contrib.auth import get_user_model
-from django.test import TestCase, Client
+
+from django.test import Client, TestCase
 from django.urls import reverse
 
-from posts.models import Group, Post
-
-User = get_user_model()
+from posts.models import Group, Post, User
 
 
-class StaticURLTests(TestCase):
-    def setUp(self):
-        self.guest_client = Client()
-
-    def test_homepage(self):
-        response = self.guest_client.get('/')
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+INDEX_URL = reverse('posts:index')
+CREATE_POST_URL = reverse('posts:post_create')
+UNEXISTING_PAGE_URL = '/unexisting_page/'
+REDIRECT_CREATE_POST_URL = '/auth/login/?next=/create/'
+TEST_DATA = {
+    'username': 'author',
+    'test_group_title': 'Тестовая группа',
+    'test_group_slug': 'test-slug',
+    'test_group_description': 'Тестовое описание',
+    'test_post_text': 'Тестовый пост',
+}
 
 
 class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(username='author')
+        cls.user = User.objects.create_user(
+            username=TEST_DATA['username']
+        )
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='test-slug',
-            description='Тестовое описание',
+            title=TEST_DATA['test_group_title'],
+            slug=TEST_DATA['test_group_slug'],
+            description=TEST_DATA['test_group_description'],
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост'
+            text=TEST_DATA['test_post_text']
+        )
+        cls.GROUP_LIST_URL = reverse(
+            'posts:group_list',
+            kwargs={'slug': cls.group.slug}
+        )
+        cls.PROFILE_URL = reverse(
+            'posts:profile',
+            kwargs={'username': cls.user.username}
+        )
+        cls.POST_DETAIL_URL = reverse(
+            'posts:post_detail',
+            kwargs={'post_id': cls.post.id}
+        )
+        cls.POST_EDIT_URL = reverse(
+            'posts:post_edit',
+            kwargs={'post_id': cls.post.id}
         )
 
     def setUp(self):
@@ -39,16 +59,16 @@ class PostURLTests(TestCase):
 
     def test_unexisting_page_returns_404_error(self):
         """Несуществующая страница возвращает ошибку 404"""
-        response = self.guest_client.get('/unexisting_page/')
+        response = self.guest_client.get(UNEXISTING_PAGE_URL)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_about_urls_exist_at_desired_location_for_guest(self):
         """Проверка доступности адресов для любого пользователя"""
         responses_urls = [
-            reverse('posts:index'),
-            reverse('posts:group_list', kwargs={'slug': self.group.slug}),
-            reverse('posts:profile', kwargs={'username': self.user.username}),
-            reverse('posts:post_detail', kwargs={'post_id': self.post.id}),
+            INDEX_URL,
+            self.GROUP_LIST_URL,
+            self.PROFILE_URL,
+            self.POST_DETAIL_URL,
         ]
         for url in responses_urls:
             with self.subTest(url=url):
@@ -62,21 +82,21 @@ class PostURLTests(TestCase):
     def test_about_create_post_url_exists_for_authorized(self):
         """Страница создания поста доступна для авторизованного пользователя"""
         response = self.authorized_client.get(
-            reverse('posts:post_create')
+            CREATE_POST_URL
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_about_edit_post_url_exists_for_authorized(self):
         """Страница редактирования поста доступна для автора поста"""
         response = self.authorized_client.get(
-            reverse('posts:post_edit', kwargs={'post_id': self.post.id})
+            self.POST_EDIT_URL
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_about_create_post_url_exists_for_authorized(self):
         """Страница редактирования поста недоступна для любого пользователя"""
         response = self.guest_client.get(
-            reverse('posts:post_create')
+            self.POST_EDIT_URL
         )
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
@@ -85,10 +105,10 @@ class PostURLTests(TestCase):
         пользователя на страницу логина
         """
         response = self.guest_client.get(
-            reverse('posts:post_create'),
+            CREATE_POST_URL,
             follow=True
         )
         self.assertRedirects(
             response,
-            ('/auth/login/?next=/create/')
+            (REDIRECT_CREATE_POST_URL)
         )
