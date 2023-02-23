@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from posts.models import Group, Post, User
+from posts.models import Comment, Group, Post, User
 from posts.forms import CommentForm, PostForm
 from posts.utils import paginating
 
@@ -43,8 +43,7 @@ def profile(request, username):
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     comment_form = CommentForm(request.POST or None)
-    # проверить
-    comments = post.comment.filter(pk=post_id)
+    comments = Comment.objects.filter(post_id=post_id)
     context = {
         'post': post,
         'comment_form': comment_form,
