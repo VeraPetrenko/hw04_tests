@@ -39,8 +39,8 @@
           <a href="{% url 'posts:post_edit' post.pk %}">
             редактировать запись
           </a>
-        {% endif %}
         </li>
+        {% endif %}
       </ul>
     </aside>
     <article class="col-12 col-md-9">
@@ -48,5 +48,6 @@
         {{ post.text }}
       </p>
     </article>
+    {% include 'posts/includes/comments.html' %}
   </div> 
  {% endblock %}

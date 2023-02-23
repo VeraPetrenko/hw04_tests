@@ -35,6 +35,15 @@ class Post(models.Model):
         blank=True,
         help_text='Загрузите картинку'
     )
+    comment = models.ForeignKey(
+        'Comment',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name='Комментарии',
+        help_text='Комментарии к посту',
+        related_name='posts'
+    )
 
     class Meta:
         ordering = ('-pub_date',)
@@ -67,10 +76,25 @@ class Group(models.Model):
 class Comment(models.Model):
     post = models.ForeignKey(
         'Post',
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         verbose_name='Комментарий',
         help_text='Комментарий к посту',
         related_name='comments'
     )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор поста',
+        related_name='comments'
+    )
+    text = models.TextField(
+        verbose_name='Текст комментария',
+        help_text='Введите текст комментария'
+    )
+    created = models.DateTimeField(
+        verbose_name='Дата и время публикации комментария',
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.text[:15]
