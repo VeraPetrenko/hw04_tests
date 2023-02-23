@@ -32,7 +32,8 @@ class Post(models.Model):
     image = models.ImageField(
         'Картинка',
         upload_to='posts/',
-        blank=True
+        blank=True,
+        help_text='Загрузите картинку'
     )
 
     class Meta:
@@ -61,3 +62,15 @@ class Group(models.Model):
     # ограничиваем вывод title 30 символами
     def __str__(self):
         return self.title[:30]
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(
+        'Post',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name='Комментарий',
+        help_text='Комментарий к посту',
+        related_name='comments'
+    )

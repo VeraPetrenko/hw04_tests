@@ -19,6 +19,7 @@ POST_FIELDS_VERBOSES = {
 POSTS_FIELDS_HELP_TEXT = {
     'text': 'Введите текст поста',
     'group': 'Группа, к которой будет относиться пост',
+    'image': 'Загрузите картинку',
 }
 
 
