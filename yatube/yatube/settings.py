@@ -22,6 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'uax-pz#__+^()6w!qld8af^6c4lnqjkn)o4qno5ys333=bh#ks'
 
+# Имя view-функции, обрабатывающей ошибку 403
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -45,7 +49,8 @@ INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'users.apps.UsersConfig',
     'core.apps.CoreConfig',
-    'about.apps.AboutConfig'
+    'about.apps.AboutConfig',
+    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +85,11 @@ TEMPLATES = [
         },
     },
 ]
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 WSGI_APPLICATION = 'yatube.wsgi.application'
 
